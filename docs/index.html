@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Readmission Capacity Planner</title>
+<meta name="description" content="Plan a post-discharge follow-up programme: choose capacity and intervention effect, see readmissions avoided using a risk model versus the LACE index.">
+<meta property="og:title" content="Readmission Capacity Planner">
+<meta property="og:description" content="Who should a care team call after discharge? A risk model reaches 39% of 30-day readmissions by contacting 20% of patients, against 27% for the LACE index.">
+<meta property="og:image" content="social-preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{--paper:#F0F3F2;--card:#FAFBFA;--ink:#10221F;--ink2:#3A4B48;--muted:#62716E;--rule:#CBD5D2;
+  --model:#2a78d6;--lace:#eb6834;--rand:#8a94a0;--accent:#0F7B6C;
+  --display:"Bricolage Grotesque",system-ui,sans-serif;--serif:"Source Serif 4",Georgia,serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--paper:#0B1715;--card:#0F1F1C;--ink:#E6EEEC;--ink2:#B3C2BE;--muted:#87968F;--rule:#22362F;--model:#3987e5;--lace:#d95926;--rand:#7d8794;--accent:#3FBFA9}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.55}
+.wrap{max-width:1000px;margin:0 auto;padding:clamp(28px,6vw,64px) clamp(16px,4vw,32px)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(32px,5vw,52px);line-height:1.02;margin:10px 0 14px;letter-spacing:-.02em;text-wrap:balance}
+.lede{color:var(--ink2);max-width:42em;margin:0}
+.panel{margin-top:30px;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:clamp(18px,3vw,30px)}
+.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+@media (max-width:760px){.controls{grid-template-columns:1fr}}
+label{font-family:var(--mono);font-size:13px;color:var(--ink2);display:flex;justify-content:space-between;gap:10px}
+label b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;margin:12px 0 4px;accent-color:var(--accent);height:28px}
+input[type=number]{width:100%;margin-top:10px;font:500 16px var(--mono);padding:8px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--paper);color:var(--ink)}
+.hint{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.compare{margin-top:28px;display:grid;gap:14px}
+.row{display:grid;grid-template-columns:11em 1fr 7.5em;gap:14px;align-items:center}
+@media (max-width:600px){.row{grid-template-columns:1fr;gap:4px}}
+.row .name{font-family:var(--mono);font-size:13px}
+.row .name i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px;vertical-align:0}
+.bar{height:22px;background:var(--paper);border-radius:4px;overflow:hidden}
+.bar span{display:block;height:100%;border-radius:0 4px 4px 0;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.row .val{font-family:var(--mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:600px){.row .val{text-align:left}}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:30px}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{border-top:3px solid var(--ink);padding-top:10px}
+.kpi.accent{border-color:var(--accent)}
+.kpi .v{font-family:var(--display);font-weight:800;font-size:clamp(26px,3.6vw,38px);line-height:1.05;font-variant-numeric:tabular-nums}
+.kpi .l{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:4px}
+.note{font-size:15px;color:var(--ink2);margin-top:22px}
+.small{font-size:13.5px;color:var(--muted);margin-top:26px}
+a{color:var(--accent)}
+input:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+@media (prefers-reduced-motion:reduce){.bar span{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">30-day readmission · post-discharge follow-up planner</div>
+  <h1>Who should the care team call after discharge?</h1>
+  <p class="lede">A follow-up call or visit can prevent some readmissions, but a team can only reach a fraction of patients. Choose your capacity and the effect you expect. The planner compares three ways of choosing who to contact, using results measured on 29,824 hold-out discharges.</p>
+
+  <div class="panel">
+    <div class="controls">
+      <div>
+        <label for="cap"><span>Follow-up capacity</span><b id="capTxt">20%</b></label>
+        <input id="cap" type="range" min="1" max="50" step="1" value="20">
+        <div class="hint">share of discharges the team can contact</div>
+      </div>
+      <div>
+        <label for="rr"><span>Intervention effect</span><b id="rrTxt">18% fewer</b></label>
+        <input id="rr" type="range" min="73" max="91" step="1" value="82">
+        <div class="hint">evidence range: 9% to 27% fewer readmissions</div>
+      </div>
+      <div>
+        <label for="vol"><span>Discharges per year</span></label>
+        <input id="vol" type="number" min="1000" max="500000" step="500" value="20000" inputmode="numeric">
+        <div class="hint">your hospital or trust volume</div>
+      </div>
+    </div>
+
+    <div class="compare" aria-live="polite">
+      <div class="eyebrow">Readmissions avoided per year</div>
+      <div class="row"><span class="name"><i style="background:var(--model)"></i>Risk model</span><div class="bar"><span id="bModel" style="background:var(--model)"></span></div><span class="val" id="vModel"></span></div>
+      <div class="row"><span class="name"><i style="background:var(--lace)"></i>LACE index</span><div class="bar"><span id="bLace" style="background:var(--lace)"></span></div><span class="val" id="vLace"></span></div>
+      <div class="row"><span class="name"><i style="background:var(--rand)"></i>Random</span><div class="bar"><span id="bRand" style="background:var(--rand)"></span></div><span class="val" id="vRand"></span></div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="v" id="kContacts"></div><div class="l">patients contacted per year</div></div>
+      <div class="kpi"><div class="v" id="kReach"></div><div class="l">of all readmissions reached by the model</div></div>
+      <div class="kpi accent"><div class="v" id="kExtra"></div><div class="l">more avoided than with LACE</div></div>
+      <div class="kpi"><div class="v" id="kPer"></div><div class="l">contacts per readmission avoided (model)</div></div>
+    </div>
+    <p class="note" id="note"></p>
+  </div>
+
+  <p class="small">Data: UCI "Diabetes 130-US Hospitals" (Strack et al., 2014), CC BY 4.0, 1999–2008. Intervention effect: Leppin et al. (2014), JAMA Internal Medicine, pooled relative risk 0.82 (95% CI 0.73 to 0.91) across 42 randomised trials. The planner assumes the effect applies equally to everyone contacted. Model and code: <a href="https://github.com/Youssef-Remmal-tech/hospital-readmission-risk">github.com/Youssef-Remmal-tech/hospital-readmission-risk</a></p>
+</div>
+<script src="planner_data.js"></script>
+<script>
+(function(){
+  var P = window.PLANNER, N = P.n, R = P.readmissions;
+  var model = {}, lace = {};
+  P.model.forEach(function(r){ model[Math.round(r[0]*100)] = r[1]; });
+  P.lace.forEach(function(r){ lace[Math.round(r[0]*100)] = r[1]; });
+  var cap = document.getElementById('cap'), rr = document.getElementById('rr'), vol = document.getElementById('vol');
+  var fmt = function(v){ return Math.round(v).toLocaleString('en-GB'); };
+  function update(){
+    var k = +cap.value, effect = 1 - (+rr.value)/100, V = Math.max(0, +vol.value || 0);
+    var perDischarge = function(hits){ return hits / N; };
+    var aModel = perDischarge(model[k]) * effect * V;
+    var aLace = perDischarge(lace[k]) * effect * V;
+    var aRand = (R / N) * (k/100) * effect * V;
+    var max = Math.max(aModel, aLace, aRand) || 1;
+    document.getElementById('capTxt').textContent = k + '%';
+    document.getElementById('rrTxt').textContent = Math.round(effect*100) + '% fewer';
+    [['Model',aModel],['Lace',aLace],['Rand',aRand]].forEach(function(p){
+      document.getElementById('b'+p[0]).style.width = (p[1]/max*100) + '%';
+      document.getElementById('v'+p[0]).textContent = fmt(p[1]);
+    });
+    var contacts = V * k/100;
+    document.getElementById('kContacts').textContent = fmt(contacts);
+    document.getElementById('kReach').textContent = Math.round(model[k]/R*100) + '%';
+    document.getElementById('kExtra').textContent = '+' + fmt(aModel - aLace);
+    document.getElementById('kPer').textContent = aModel > 0 ? (contacts/aModel).toFixed(0) : '–';
+    document.getElementById('note').textContent = 'Contacting the ' + k + '% of patients with the highest model risk reaches ' +
+      Math.round(model[k]/R*100) + '% of the people who would be readmitted within 30 days. LACE reaches ' +
+      Math.round(lace[k]/R*100) + '% and random selection ' + k + '%.';
+  }
+  [cap, rr, vol].forEach(function(el){ el.addEventListener('input', update); });
+  update();
+})();
+</script>
+</body>
+</html>
