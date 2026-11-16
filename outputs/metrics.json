@@ -1,0 +1,81 @@
+{
+  "data": {
+    "raw_encounters": 101766,
+    "eligible_encounters": 99343,
+    "patients": 69990,
+    "readmission_rate": 0.11388824577474005,
+    "train_encounters": 69519,
+    "test_encounters": 29824,
+    "test_patients": 20997,
+    "test_readmissions": 3398
+  },
+  "hold_out": {
+    "gradient_boosting": {
+      "auc": 0.6753171549217563,
+      "average_precision": 0.23131758338712582,
+      "brier": 0.0958561659668809
+    },
+    "logistic_regression": {
+      "auc": 0.6652214205541682,
+      "average_precision": 0.2105280780267337,
+      "brier": 0.09692351883831718
+    },
+    "lace_index": {
+      "auc": 0.5681116562705313,
+      "average_precision": 0.1384102580280932,
+      "brier": null
+    }
+  },
+  "tuning": {
+    "logistic_regression": {
+      "best_params": {
+        "model__C": 0.1
+      },
+      "cv_auc": 0.6628318428061872
+    },
+    "gradient_boosting": {
+      "best_params": {
+        "model__learning_rate": 0.03,
+        "model__max_depth": 3,
+        "model__max_iter": 600,
+        "model__min_samples_leaf": 100
+      },
+      "cv_auc": 0.6732619261363497
+    }
+  },
+  "bootstrap_gbm_minus_lace": {
+    "auc_a_ci": [
+      0.5565125833753047,
+      0.5789058250303625
+    ],
+    "auc_b_ci": [
+      0.6633852392108525,
+      0.6874332063567677
+    ],
+    "diff": 0.10735210157542759,
+    "diff_ci": [
+      0.09448161911394858,
+      0.12053960856075922
+    ]
+  },
+  "bootstrap_gbm_minus_logistic": {
+    "auc_a_ci": [
+      0.6535714404838732,
+      0.676767278360113
+    ],
+    "auc_b_ci": [
+      0.6633852392108525,
+      0.6874332063567677
+    ],
+    "diff": 0.010079368761466857,
+    "diff_ci": [
+      0.0064600825564212205,
+      0.013602056919789721
+    ]
+  },
+  "leakage_check": {
+    "naive_split_auc": 0.6783235893961526,
+    "patient_split_auc": 0.6753171549217563,
+    "naive_test_patients_seen_in_training": 0.3862027312686642
+  }
+}
